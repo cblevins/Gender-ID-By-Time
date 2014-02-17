@@ -1,0 +1,5 @@
+Name	ArrestYear	Offense
+Madison Smith	1934	Jaywalking	
+Madison Smith	2008	Trespassing
+Orenthal James Simpson	1994	Homicide
+Casey Anthony	2008	Obstruction of justice
