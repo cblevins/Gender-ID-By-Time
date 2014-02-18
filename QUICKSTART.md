@@ -7,7 +7,7 @@ Created in February 2014 by Bridget Baird and Cameron Blevins
 1. Create a directory that contains:
   * GenderID.py
   *	ReferenceData folder
-  *	A text file containing names whose gender you want identified
+  *	A text file (tab-delimited) containing names whose gender you want identified
   *	prefixLst.txt
   *	suffixLst.txt
 2. Open GenderID.py
