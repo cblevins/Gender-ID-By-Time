@@ -12,13 +12,13 @@ subfolderName="ReferenceData"     #subfolder containing the database of names an
 dateVaries=True                 #set to False if your data does NOT have its own date information in it (ex. the publication years for authors' books)
 defaultYear=1980                #if your data does NOT have its own date information, select an approximate year for your dataset
 
-minAge=18                       #approximate "floor" of your population's age range
+minAge=18                      #approximate "floor" of your population's age range
 maxAge=40                       #approximate "ceiling" of your population's age range
 
 headerPresent=True      #set to False if input file has no header
-nameCol=0              #column in input file containing names - default is the first column (index 0)
+nameCol=0             #column in input file containing names - default is the first column (index 0)
 dateCol=1              #column in input file containing years (if present) - default is the second column (index 1)
-firstLastTogether=True  #set to False if only first name(s) are present in the name colun
+firstLastTogether=True  #set to False if only first name(s) are present in the name column
 
 threshold=80          #the minimum threshold, on a scale from 0-100, for determining the gender binary of a name.
 
@@ -32,16 +32,19 @@ def readInfo():
     infile=open(inFileName,'r')
     lst=[]
     headerLst=[]
+
     if headerPresent:   #get header titles for later use
-        header=infile.readline()    
+        header=infile.readline()
         header=header.strip("\n")
+        header=header.strip("\r")
         headerLst=header.split("\t")
                         #read file and store information in a list
     for line in infile:
         line=line.strip("\n")
+        line=line.strip("\r")
         line=line.replace('"','')
         oneLineLst=line.split("\t")
-        lst.append(oneLineLst)                
+        lst.append(oneLineLst)
     infile.close()
     return lst, headerLst    
 
@@ -67,7 +70,7 @@ def readDatabaseNames():
             yearLst.append(one)
         infile.close()
         allNamesLst.append([year,yearLst])
-    return allNamesLst, minDate,maxDate                    
+    return allNamesLst, minDate,maxDate
 
 ##find first and last years: 
 ##use minAge and maxAge
@@ -75,11 +78,11 @@ def readDatabaseNames():
 def findFirstLastDate(date,minDate,maxDate):
     if date==-1: return -1,-1
     start=date-maxAge
-    if start<minDate: start=minDate
-    if start>maxDate: start=maxDate
+    if start<minDate:start=minDate
+    if start>maxDate:start=maxDate
     last=date-minAge
     if last<minDate: last=minDate
-    if last>maxDate: last = maxDate
+    if last>maxDate: last=maxDate
     return start, last
 
 ##find last name and a list of first names
@@ -92,14 +95,16 @@ def findFirstLastNames(name):
         lst=name.split()
         if len(lst)>0 and ((lst[-1] in suffixLst) or (lst[-1]+'.' in suffixLst)):
             lst=lst[:-1]
-        if len(lst)>0:              #take off last name
+        if len(lst)>0:  #ignore last name
             lst=lst[:-1]
     else: lst=name.split()
-    for one in lst:
+    for one in lst: 
         one=one.strip('.')
         one=one.strip(',')
-        if one in prefixLst or (one+'.') in prefixLst: continue
-        if len(one)<=1: continue
+        if one in prefixLst or (one+'.') in prefixLst: #remove prefixes (ex. "Dr.")
+            continue
+        if len(one)<=1: #ignore the first name if it is a single character in length
+            continue
         namelst.append(one)
     return namelst
             
@@ -109,12 +114,11 @@ def findGender(name, start, last):
     totF=0
     for entry in allNamesLst:
         if start<=entry[0]<last:
-                    ##linear search
-##            for item in entry[1]:
-##                if name==item[0]:
-##                    if item[1]=="F": totF+=item[2]
-##                    else: totM+=item[2]
                     ##binary search for name match
+            f,m=binSearch(name,entry[1])
+            totF+=f
+            totM+=m
+        elif start == entry[0] == last:
             f,m=binSearch(name,entry[1])
             totF+=f
             totM+=m
@@ -151,6 +155,7 @@ def readinList(fileName):
     infile=open(fileName,'r')
     for line in infile:
         line=line.strip("\n")
+        line=line.strip("\r")
         lst.append(line)
     return lst
 
@@ -169,7 +174,7 @@ def main():
     suffixLst=readinList(suffixFileName)
                     #open outfile and write header
     outfile=open(outFileName,'w')
-    outfile.write("Name\tGender\tPercentFemale\tPercentMale\t")
+    outfile.write("Name\tGender\tPercentFemale\tPercentMale\tRangeStart\tRangeEnd\t")
     if headerPresent:
         for title in headerLst:
             outfile.write(title+"\t")
@@ -182,14 +187,15 @@ def main():
                 date=int(line[dateCol])
             else: date=-1
         else: date=defaultYear
+        
                     #find range of dates to use for lookup
         if date!=-1:
             firstDate, lastDate=findFirstLastDate(date,minDate,maxDate)
-                        #find last name (if there) and list of first name(s)
+                        #find last name (if there) and list of first name(s) 
             namelst=findFirstLastNames(line[nameCol])
                         #find gender
             for entry in namelst:   #go through first names
-                totF,totM=findGender(entry,firstDate,lastDate)                   
+                totF,totM=findGender(entry,firstDate,lastDate)
                 if totF!=0 or totM!=0: break    #exit if have a match
                     #find gender and percentages
             gender="U"          
@@ -202,9 +208,9 @@ def main():
                 if female>=threshold: gender="F"
                 elif male>=threshold: gender="M"           
                         #write gender info into the outfile
-            outfile.write(' '.join(namelst)+"\t"+gender+"\t"+str(female)+"\t"+str(male)+"\t")
+            outfile.write(' '.join(namelst)+"\t"+gender+"\t"+str(female)+"\t"+str(male)+"\t"+str(firstDate)+"\t"+str(lastDate)+"\t")
         else:           #no date
-            outfile.write("\t"+"\t"+"\t"+"\t")
+            outfile.write("\t"+"\t"+"\t"+"\t"+"\t"+"\t")
 
         for i in range(len(line)):      #write original information also
             if type(line[i])==str:
@@ -212,7 +218,7 @@ def main():
             else: outfile.write(str(line[i])+"\t")
         outfile.write("\n")                
         count+=1
-        if count%1000 ==0: print "Finished "+str(count)
+        if count%1000 ==0: print "Finished "+str(count)+" records"
     outfile.close()
     
 main()

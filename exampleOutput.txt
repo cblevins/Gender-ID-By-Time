@@ -1,5 +1,5 @@
-Name	Gender	PercentFemale	PercentMale	Name	ArrestYear	Offense	
-Madison	M	0.0	100.0	Madison Smith	1934	Jaywalking		
-Madison	F	82.8	17.2	Madison Smith	2008	Trespassing	
-Orenthal James	M	0.0	100.0	Orenthal James Simpson	1994	Homicide	
-Casey	U	39.6	60.4	Casey Anthony	2008	Obstruction of justice	
+Name	Gender	PercentFemale	PercentMale	RangeStart	RangeEnd	Name	ArrestYear	Offense	
+Madison	M	0.0	100.0	1894	1916	Madison Smith	1934	Jaywalking	
+Madison	F	82.8	17.2	1968	1990	Madison Smith	2008	Trespassing	
+Orenthal James	M	0.0	100.0	1954	1976	Orenthal James Simpson	1994	Homicide	
+Casey	U	39.6	60.4	1968	1990	Casey Anthony	2008	Obstruction of justice	
