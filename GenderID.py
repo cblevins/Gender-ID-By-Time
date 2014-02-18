@@ -79,9 +79,13 @@ def findFirstLastDate(date,minDate,maxDate):
     if date==-1: return -1,-1
     start=date-maxAge
     if start<minDate:start=minDate
-    if start>maxDate:start=maxDate
+    if start>maxDate:
+        start=maxDate
+        print ("Problem with date "+str(date)+": using names from date "+str(maxDate))
     last=date-minAge
-    if last<minDate: last=minDate
+    if last<minDate:
+        last=minDate
+        print ("Problem with date "+str(date)+": using names from date "+str(minDate))        
     if last>maxDate: last=maxDate
     return start, last
 
@@ -101,6 +105,7 @@ def findFirstLastNames(name):
     for one in lst: 
         one=one.strip('.')
         one=one.strip(',')
+        one=one.capitalize()
         if one in prefixLst or (one+'.') in prefixLst: #remove prefixes (ex. "Dr.")
             continue
         if len(one)<=1: #ignore the first name if it is a single character in length
@@ -109,16 +114,12 @@ def findFirstLastNames(name):
     return namelst
             
 ##Use lookup list from start to last dates to count gender matches
-def findGender(name, start, last):
+def findGender(name, start, last):    
     totM=0
     totF=0
     for entry in allNamesLst:
-        if start<=entry[0]<last:
+        if start<=entry[0]<=last:
                     ##binary search for name match
-            f,m=binSearch(name,entry[1])
-            totF+=f
-            totM+=m
-        elif start == entry[0] == last:
             f,m=binSearch(name,entry[1])
             totF+=f
             totM+=m
